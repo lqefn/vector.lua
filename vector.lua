@@ -24,25 +24,64 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ]]--
 
+local DIRECTION_NORTH = "n"
+local DIRECTION_NORTH_EAST = "ne"
+local DIRECTION_EAST = "e"
+local DIRECTION_SOUTH_EAST = "se"
+local DIRECTION_SOUTH = "s"
+local DIRECTION_SOUTH_WEST = "sw"
+local DIRECTION_WEST = "w"
+local DIRECTION_NORTH_WEST = "nw"
+
+local DEFAULT_DIRECTION = DIRECTION_SOUTH
+
+local ONE_EIGHT_OF_PI = math.pi / 8
+
+local DIRECTION_SET = {
+  DIRECTION_WEST,             -- 1
+  DIRECTION_SOUTH_WEST,       -- 2
+  DIRECTION_SOUTH_WEST,       -- 3
+  DIRECTION_SOUTH,            -- 4
+  DIRECTION_SOUTH,            -- 5
+  DIRECTION_SOUTH_EAST,       -- 6
+  DIRECTION_SOUTH_EAST,       -- 7
+  DIRECTION_EAST,             -- 8
+  DIRECTION_EAST,             -- 9
+  DIRECTION_NORTH_EAST,       -- 10
+  DIRECTION_NORTH_EAST,       -- 11
+  DIRECTION_NORTH,            -- 12
+  DIRECTION_NORTH,            -- 13
+  DIRECTION_NORTH_WEST,       -- 14
+  DIRECTION_NORTH_WEST,       -- 15
+  DIRECTION_WEST              -- 16
+}
+
+
+
+
 local assert = assert
 local sqrt, cos, sin, atan2 = math.sqrt, math.cos, math.sin, math.atan2
 
 local vector = {}
 vector.__index = vector
 
+--- Create a new vector.
 local function new(x,y)
 	return setmetatable({x = x or 0, y = y or 0}, vector)
 end
 local zero = new(0,0)
 
+--- Test if value is a vector.
 local function isvector(v)
 	return getmetatable(v) == vector
 end
 
+--- Copy a vector.
 function vector:clone()
 	return new(self.x, self.y)
 end
 
+--- Extract coordinates. x, y
 function vector:unpack()
 	return self.x, self.y
 end
@@ -55,16 +94,22 @@ function vector.__unm(a)
 	return new(-a.x, -a.y)
 end
 
+--- vector + vector = vector
+--- Component wise sum.
 function vector.__add(a,b)
 	assert(isvector(a) and isvector(b), "Add: wrong argument types (<vector> expected)")
 	return new(a.x+b.x, a.y+b.y)
 end
 
+--- vector - vector = vector
+--- Component wise difference.
 function vector.__sub(a,b)
 	assert(isvector(a) and isvector(b), "Sub: wrong argument types (<vector> expected)")
 	return new(a.x-b.x, a.y-b.y)
 end
 
+-- vector * vector = number
+-- Dot product.
 function vector.__mul(a,b)
 	if type(a) == "number" then
 		return new(a*b.x, a*b.y)
@@ -93,15 +138,18 @@ function vector.__le(a,b)
 	return a.x <= b.x and a.y <= b.y
 end
 
+--- Per element multiplication.
 function vector.permul(a,b)
 	assert(isvector(a) and isvector(b), "permul: wrong argument types (<vector> expected)")
 	return new(a.x*b.x, a.y*b.y)
 end
 
+--- Get squared length.
 function vector:len2()
 	return self.x * self.x + self.y * self.y
 end
 
+--- Get length.
 function vector:len()
 	return sqrt(self.x * self.x + self.y * self.y)
 end
@@ -120,6 +168,7 @@ function vector.dist2(a, b)
 	return (dx * dx + dy * dy)
 end
 
+-- Normalize vector in-place.
 function vector:normalize_inplace()
 	local l = self:len()
 	if l > 0 then
@@ -128,25 +177,31 @@ function vector:normalize_inplace()
 	return self
 end
 
+-- Get normalized vector.
 function vector:normalized()
 	return self:clone():normalize_inplace()
 end
 
+-- Rotate vector in-place.
 function vector:rotate_inplace(phi)
 	local c, s = cos(phi), sin(phi)
 	self.x, self.y = c * self.x - s * self.y, s * self.x + c * self.y
 	return self
 end
 
+-- Get rotated vector.
+-- @param {radians} phi
 function vector:rotated(phi)
 	local c, s = cos(phi), sin(phi)
 	return new(c * self.x - s * self.y, s * self.x + c * self.y)
 end
 
+-- Get perpendicular vector. 返回一个沿 x 轴镜像的向量
 function vector:perpendicular()
 	return new(-self.y, self.x)
 end
 
+-- Get projection onto another vector.
 function vector:projectOn(v)
 	assert(isvector(v), "invalid argument: cannot project vector on " .. type(v))
 	-- (self * v) * v / v:len2()
@@ -154,6 +209,7 @@ function vector:projectOn(v)
 	return new(s * v.x, s * v.y)
 end
 
+--- Mirrors vector on other vector
 function vector:mirrorOn(v)
 	assert(isvector(v), "invalid argument: cannot mirror vector on " .. type(v))
 	-- 2 * self:projectOn(v) - self
@@ -161,6 +217,8 @@ function vector:mirrorOn(v)
 	return new(s * v.x - self.x, s * v.y - self.y)
 end
 
+-- Cross product of two vectors.
+-- 向量积
 function vector:cross(v)
 	assert(isvector(v), "cross: wrong argument types (<vector> expected)")
 	return self.x * v.y - self.y * v.x
@@ -174,6 +232,7 @@ function vector:trim_inplace(maxLen)
 	return self
 end
 
+-- Measure angle between two vectors.
 function vector:angleTo(other)
 	if other then
 		return atan2(self.y, self.x) - atan2(other.y, other.x)
@@ -185,6 +244,11 @@ function vector:trimmed(maxLen)
 	return self:clone():trim_inplace(maxLen)
 end
 
+-- 获得当前向量对应的8向方向的方向结果
+function vector:toDirection()
+  if self.x == 0 and self.y == 0 then return DEFAULT_DIRECTION end
+  return DIRECTION_SET[8 + math.ceil(math.atan2(self.y, self.x) / ONE_EIGHT_OF_PI)]
+end
 
 -- the module
 return setmetatable({new = new, isvector = isvector, zero = zero},
