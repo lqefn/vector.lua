@@ -144,9 +144,21 @@ function vector.permul(a,b)
 	return new(a.x*b.x, a.y*b.y)
 end
 
---- Get squared length.
+--- Get squared length. 返回标量的平方
 function vector:len2()
 	return self.x * self.x + self.y * self.y
+end
+
+--- 返回标量
+function vector:getScalar()
+	return math.sqrt(self.x * self.x + self.y * self.y)
+end
+
+--- 设定标量的大小
+function vector:setScalar(value)
+  local s = math.abs(value) / self:getScalar()
+  self.x, self.y = self.x * s, self.y * s
+  return self
 end
 
 --- Get length.

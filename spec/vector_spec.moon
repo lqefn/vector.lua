@@ -102,13 +102,41 @@ describe "vector tests", ->
     print "[vector_spec] waht is v:#{v}"
     assert.are.equal v\toDirection!, "e"
 
+    v\rotateTo(math.pi / 4)
+    print "[vector_spec] v:#{v} dir:#{v\toDirection!}, len:#{v\len!}"
+    assert.are.equal v\toDirection!, "ne"
+
     v\rotateTo(math.pi / 2)
     print "[vector_spec] v:#{v} dir:#{v\toDirection!}, len:#{v\len!}"
     assert.are.equal v\toDirection!, "n"
 
+    v\rotateTo(math.pi * 3 / 4)
+    print "[vector_spec] v:#{v} dir:#{v\toDirection!}, len:#{v\len!}"
+    assert.are.equal v\toDirection!, "nw"
+
+    v\rotateTo(math.pi)
+    print "[vector_spec] v:#{v} dir:#{v\toDirection!}, len:#{v\len!}"
+    assert.are.equal v\toDirection!, "w"
+
+    v\rotateTo(-math.pi / 4)
+    print "[vector_spec] v:#{v} dir:#{v\toDirection!}, len:#{v\len!}"
+    assert.are.equal v\toDirection!, "se"
+
     v\rotateTo(-math.pi / 2)
     print "[vector_spec] v:#{v} dir:#{v\toDirection!}, len:#{v\len!}"
     assert.are.equal v\toDirection!, "s"
+
+    v\rotateTo(-math.pi * 3 / 4)
+    print "[vector_spec] v:#{v} dir:#{v\toDirection!}, len:#{v\len!}"
+    assert.are.equal v\toDirection!, "sw"
+
+  it "vector be trimmed correctly", ->
+
+    v = vector.new(100, 0.1)
+    print "[vector_spec] waht is v:#{v}"
+    v\setScalar(0.1)
+    print "[vector_spec] after trim v:#{v}"
+    assert.is_true(v.x < 0.1)
 
 
 
