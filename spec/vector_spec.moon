@@ -98,13 +98,17 @@ describe "vector tests", ->
 
   it "vector should rotate to specific radians correctly", ->
 
-    v = vector.new(1, 0.1)
+    v = vector.new(100, 0.1)
     print "[vector_spec] waht is v:#{v}"
     assert.are.equal v\toDirection!, "e"
 
     v\rotateTo(math.pi / 2)
     print "[vector_spec] v:#{v} dir:#{v\toDirection!}, len:#{v\len!}"
     assert.are.equal v\toDirection!, "n"
+
+    v\rotateTo(-math.pi / 2)
+    print "[vector_spec] v:#{v} dir:#{v\toDirection!}, len:#{v\len!}"
+    assert.are.equal v\toDirection!, "s"
 
 
 

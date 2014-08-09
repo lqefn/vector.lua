@@ -188,7 +188,7 @@ end
 function vector:rotateTo(targetRadians)
   local currentRadians = atan2(self.y, self.x)
   if targetRadians == nil or targetRadians == currentRadians then return self end
-  print("vector:rotateTo, currentRadians:"..tostring(currentRadians))
+  --print("vector:rotateTo, currentRadians:"..tostring(currentRadians))
   return self:rotate(targetRadians - currentRadians)
 end
 
