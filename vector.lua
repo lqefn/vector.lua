@@ -87,7 +87,7 @@ function vector:unpack()
 end
 
 function vector:__tostring()
-	return "("..tonumber(self.x)..","..tonumber(self.y)..")"
+	return "(x:"..tonumber(self.x)..", y:"..tonumber(self.y)..")"
 end
 
 function vector.__unm(a)
@@ -169,7 +169,7 @@ function vector.dist2(a, b)
 end
 
 -- Normalize vector in-place.
-function vector:normalize_inplace()
+function vector:normalize()
 	local l = self:len()
 	if l > 0 then
 		self.x, self.y = self.x / l, self.y / l
@@ -177,24 +177,34 @@ function vector:normalize_inplace()
 	return self
 end
 
--- Get normalized vector.
-function vector:normalized()
-	return self:clone():normalize_inplace()
-end
-
 -- Rotate vector in-place.
-function vector:rotate_inplace(phi)
+function vector:rotate(phi)
 	local c, s = cos(phi), sin(phi)
 	self.x, self.y = c * self.x - s * self.y, s * self.x + c * self.y
 	return self
 end
 
+-- 将自己旋转到给定的弧度
+function vector:rotateTo(targetRadians)
+  local currentRadians = atan2(self.y, self.x)
+  if targetRadians == nil or targetRadians == currentRadians then return self end
+  print("vector:rotateTo, currentRadians:"..tostring(currentRadians))
+  return self:rotate(targetRadians - currentRadians)
+end
+
+-- 将自身的弧度和标量置空
+function vector:clear()
+  self.x = 0
+  self.y = 0
+  return self
+end
+
 -- Get rotated vector.
 -- @param {radians} phi
-function vector:rotated(phi)
-	local c, s = cos(phi), sin(phi)
-	return new(c * self.x - s * self.y, s * self.x + c * self.y)
-end
+--function vector:rotated(phi)
+	--local c, s = cos(phi), sin(phi)
+	--return new(c * self.x - s * self.y, s * self.x + c * self.y)
+--end
 
 -- Get perpendicular vector. 返回一个沿 x 轴镜像的向量
 function vector:perpendicular()
@@ -225,7 +235,7 @@ function vector:cross(v)
 end
 
 -- ref.: http://blog.signalsondisplay.com/?p=336
-function vector:trim_inplace(maxLen)
+function vector:trim(maxLen)
 	local s = maxLen * maxLen / self:len2()
 	s = (s > 1 and 1) or math.sqrt(s)
 	self.x, self.y = self.x * s, self.y * s
@@ -240,9 +250,9 @@ function vector:angleTo(other)
 	return atan2(self.y, self.x)
 end
 
-function vector:trimmed(maxLen)
-	return self:clone():trim_inplace(maxLen)
-end
+--function vector:trimmed(maxLen)
+	--return self:clone():trim_inplace(maxLen)
+--end
 
 -- 获得当前向量对应的8向方向的方向结果
 function vector:toDirection()
