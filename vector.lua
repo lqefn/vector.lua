@@ -87,7 +87,7 @@ function vector:unpack()
 end
 
 function vector:__tostring()
-	return "(x:"..tonumber(self.x)..", y:"..tonumber(self.y)..")"
+	return "[Vector(x:"..tonumber(self.x)..", y:"..tonumber(self.y)..")]"
 end
 
 function vector.__unm(a)
@@ -156,7 +156,7 @@ end
 
 --- 设定标量的大小
 function vector:setScalar(value)
-  local s = math.abs(value) / self:getScalar()
+  local s = (math.abs(value) / self:getScalar()) or 0
   self.x, self.y = self.x * s, self.y * s
   return self
 end
@@ -166,8 +166,9 @@ function vector:len()
 	return sqrt(self.x * self.x + self.y * self.y)
 end
 
-function vector:insignificant()
-  return 0.1 > math.abs(self.x) + math.abs(self.y)
+function vector:significant()
+  --print("significant: "..(math.abs(self.x) + math.abs(self.y)))
+  return 0.2 < (math.abs(self.x) + math.abs(self.y))
 end
 
 
