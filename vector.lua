@@ -166,6 +166,12 @@ function vector:len()
 	return sqrt(self.x * self.x + self.y * self.y)
 end
 
+function vector:setValue(x, y)
+  assert(type(x) == "number" and type(y) == "number", "invalid x:"..tostring(x).." or y:"..tostring(y))
+  self.x = x
+  self.y = y
+end
+
 function vector:significant()
   --print("significant: "..(math.abs(self.x) + math.abs(self.y)))
   return 0.2 < (math.abs(self.x) + math.abs(self.y))
@@ -275,7 +281,7 @@ end
 -- 获得当前向量对应的8向方向的方向结果
 function vector:toDirection()
   if self.x == 0 and self.y == 0 then return DEFAULT_DIRECTION end
-  return DIRECTION_SET[8 + math.ceil(math.atan2(self.y, self.x) / ONE_EIGHT_OF_PI)]
+  return DIRECTION_SET[8 + math.ceil(atan2(self.y, self.x) / ONE_EIGHT_OF_PI)]
 end
 
 -- the module
