@@ -156,8 +156,14 @@ end
 
 --- 设定标量的大小
 function vector:setScalar(value)
-  local s = (math.abs(value) / self:getScalar()) or 0
-  self.x, self.y = self.x * s, self.y * s
+  if value == 0 then self:clear() end
+  if self.x == 0 and self.y == 0 then
+    self.y = value
+    self:rotateTo(self.prevRadias)
+  else
+    local s = (math.abs(value) / self:getScalar()) or 0
+    self.x, self.y = self.x * s, self.y * s
+  end
   return self
 end
 
@@ -174,7 +180,10 @@ end
 
 function vector:significant()
   --print("significant: "..(math.abs(self.x) + math.abs(self.y)))
-  return 0.2 < (math.abs(self.x) + math.abs(self.y))
+  --return 0.2 < (math.abs(self.x) + math.abs(self.y))
+  --print("x:"..tostring(self.x))
+  --print("y:"..tostring(self.y))
+  return self.x ~= 0 and self.y ~= 0
 end
 
 
@@ -218,6 +227,8 @@ end
 
 -- 将自身的弧度和标量置空
 function vector:clear()
+  if self.x == 0 and self.y == 0 then return end
+  self.prevRadias = self:angleTo()
   self.x = 0
   self.y = 0
   return self

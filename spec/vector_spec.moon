@@ -9,6 +9,24 @@ describe "vector tests", ->
   setup ->
     return
 
+  it "vector should retain angle when cleared", ->
+    v = vector.new(45, 45)
+    print "[vector_spec] retain before cleared, v:#{v}"
+    v\clear!
+    print "[vector_spec] retain after cleared, v:#{v}, #{v\significant!}"
+    assert.is_false(v\significant!)
+    v\setScalar 30
+    print "[vector_spec] retain after cleared, v:#{v}"
+    assert.is_true v\significant!
+
+
+  it "vector should unarry minused correctly", ->
+    v = vector.new(10, 20)
+    b = -v
+    print "[vector_spec] waht is b:#{b}, v:#{v}"
+    assert.are.equal b.x, -10
+    assert.are.equal b.y, -20
+
   it "vector should rotate correctly", ->
     v = vector.new(0, 0)
     print "[vector_spec] waht is v:#{v}"
