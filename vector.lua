@@ -60,14 +60,16 @@ local DIRECTION_SET = {
 
 
 local assert = assert
-local sqrt, cos, sin, atan2 = math.sqrt, math.cos, math.sin, math.atan2
+local sqrt, cos, sin, atan2, pi = math.sqrt, math.cos, math.sin, math.atan2, math.pi
 
 local vector = {}
 vector.__index = vector
 
 --- Create a new vector.
 local function new(x,y)
-	return setmetatable({x = x or 0, y = y or 0}, vector)
+  x = x or 0
+  y = y or 0
+	return setmetatable({x = x, y = y, radians = atan2(y, x)}, vector)
 end
 local zero = new(0,0)
 
@@ -87,7 +89,7 @@ function vector:unpack()
 end
 
 function vector:__tostring()
-	return "[Vector(x:"..tonumber(self.x)..", y:"..tonumber(self.y)..")]"
+	return "[Vector(x:"..tostring(self.x)..", y:"..tostring(self.y)..", r:"..tostring(self.radians)..")]"
 end
 
 function vector.__unm(a)
@@ -127,7 +129,7 @@ function vector.__div(a,b)
 end
 
 function vector.__eq(a,b)
-	return a.x == b.x and a.y == b.y
+	return a.x == b.x and a.y == b.y and a.radians == b.radians
 end
 
 function vector.__lt(a,b)
@@ -156,10 +158,11 @@ end
 
 --- 设定标量的大小
 function vector:setScalar(value)
+  value = tonumber(value) or 0
   if value == 0 then self:clear() end
   if self.x == 0 and self.y == 0 then
     self.y = value
-    self:rotateTo(self.prevRadias)
+    self:rotateTo(self.radians)
   else
     local s = (math.abs(value) / self:getScalar()) or 0
     self.x, self.y = self.x * s, self.y * s
@@ -176,13 +179,10 @@ function vector:setValue(x, y)
   assert(type(x) == "number" and type(y) == "number", "invalid x:"..tostring(x).." or y:"..tostring(y))
   self.x = x
   self.y = y
+  self.radians = atan2(y, x)
 end
 
 function vector:significant()
-  --print("significant: "..(math.abs(self.x) + math.abs(self.y)))
-  --return 0.2 < (math.abs(self.x) + math.abs(self.y))
-  --print("x:"..tostring(self.x))
-  --print("y:"..tostring(self.y))
   return self.x ~= 0 and self.y ~= 0
 end
 
@@ -212,34 +212,35 @@ end
 
 -- Rotate vector in-place.
 function vector:rotate(phi)
-	local c, s = cos(phi), sin(phi)
-	self.x, self.y = c * self.x - s * self.y, s * self.x + c * self.y
-	return self
+  local newRadians = self.radians + phi
+  local scalar = self:getScalar()
+  self.x = scalar * sin(newRadians)
+  self.y = scalar * cos(newRadians)
+  self.radians = atan2(sin(newRadians), cos(newRadians))
+  return self
 end
 
 -- 将自己旋转到给定的弧度
 function vector:rotateTo(targetRadians)
-  local currentRadians = atan2(self.y, self.x)
-  if targetRadians == nil or targetRadians == currentRadians then return self end
-  --print("vector:rotateTo, currentRadians:"..tostring(currentRadians))
-  return self:rotate(targetRadians - currentRadians)
+  if targetRadians == nil then return self end
+
+  if self.x == 0 and self.y == 0 then
+    self.radians = atan2(sin(targetRadians), cos(targetRadians))
+  else
+    local scalar = self:getScalar()
+    self.x = scalar * cos(targetRadians)
+    self.y = scalar * sin(targetRadians)
+    self.radians = atan2(self.y, self.x)
+  end
+  return self
 end
 
 -- 将自身的弧度和标量置空
 function vector:clear()
-  if self.x == 0 and self.y == 0 then return end
-  self.prevRadias = self:angleTo()
   self.x = 0
   self.y = 0
   return self
 end
-
--- Get rotated vector.
--- @param {radians} phi
---function vector:rotated(phi)
-	--local c, s = cos(phi), sin(phi)
-	--return new(c * self.x - s * self.y, s * self.x + c * self.y)
---end
 
 -- Get perpendicular vector. 返回一个沿 x 轴镜像的向量
 function vector:perpendicular()
@@ -282,17 +283,13 @@ function vector:angleTo(other)
 	if other then
 		return atan2(self.y, self.x) - atan2(other.y, other.x)
 	end
-	return atan2(self.y, self.x)
+	--return atan2(self.y, self.x)
+	return self.radians
 end
-
---function vector:trimmed(maxLen)
-	--return self:clone():trim_inplace(maxLen)
---end
 
 -- 获得当前向量对应的8向方向的方向结果
 function vector:toDirection()
-  if self.x == 0 and self.y == 0 then return DEFAULT_DIRECTION end
-  return DIRECTION_SET[8 + math.ceil(atan2(self.y, self.x) / ONE_EIGHT_OF_PI)]
+  return DIRECTION_SET[8 + math.ceil(self.radians / ONE_EIGHT_OF_PI)]
 end
 
 -- the module

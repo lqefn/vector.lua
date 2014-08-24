@@ -9,6 +9,12 @@ describe "vector tests", ->
   setup ->
     return
 
+  --it "setRadians", ->
+    --v = vector.new(45, 45)
+    --print "[vector_spec] before setRadians, v:#{v}"
+    --v\setRadians(math.pi * 2)
+    --print "[vector_spec] after setRadians, v:#{v}"
+
   it "vector should retain angle when cleared", ->
     v = vector.new(45, 45)
     print "[vector_spec] retain before cleared, v:#{v}"
@@ -29,17 +35,15 @@ describe "vector tests", ->
 
   it "vector should rotate correctly", ->
     v = vector.new(0, 0)
-    print "[vector_spec] waht is v:#{v}"
-    assert.is_true(vector.isvector(v))
-    print "[vector_spec] dir:#{v\toDirection!}"
-    assert.are.equal v\toDirection!, "s"
+    print "[vector_spec] waht is v:#{v}, dir:#{v\toDirection!}"
+    assert.are.equal v\toDirection!, "e"
 
     v = v + vector.new(1, 0.1)
-    print "[vector_spec] waht is v:#{v}"
+    print "[vector_spec] waht is v:#{v}, dir:#{v\toDirection!}"
     assert.are.equal v\toDirection!, "e"
 
     v\rotate(ONE_EIGHT_OF_PI)
-    print "[vector_spec] v:#{v} dir:#{v\toDirection!}, len:#{v\len!}"
+    print "[vector_spec] waht is v:#{v}, dir:#{v\toDirection!}"
     assert.are.equal v\toDirection!, "ne"
 
     v\rotate(ONE_FOURTH_OF_PI)
