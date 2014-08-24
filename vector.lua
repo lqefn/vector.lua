@@ -80,7 +80,11 @@ end
 
 --- Copy a vector.
 function vector:clone()
-	return new(self.x, self.y)
+  local v = new(self.x, self.y)
+  if self.x == 0 and self.y == 0 then
+    v.radians = self.radians
+  end
+	return v
 end
 
 --- Extract coordinates. x, y
@@ -183,9 +187,8 @@ function vector:setValue(x, y)
 end
 
 function vector:significant()
-  return self.x ~= 0 and self.y ~= 0
+  return not (self.x == 0 and self.y == 0)
 end
-
 
 function vector.dist(a, b)
 	assert(isvector(a) and isvector(b), "dist: wrong argument types (<vector> expected)")
