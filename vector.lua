@@ -56,7 +56,7 @@ local DIRECTION_SET = {
   DIRECTION_WEST              -- 16
 }
 
-
+DIRECTION_SET[0] = DIRECTION_WEST -- FIXME: get use to lua's 1-based
 
 
 local assert = assert
